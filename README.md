@@ -6,17 +6,17 @@ A aplicação responde a um cenário académico realista, no qual docentes subme
 
 #   Objetivos do Projeto
 
-Os principais objetivos do projeto são:
+### Os principais objetivos do projeto são:
 
-Desenvolver uma aplicação web com separação clara entre frontend e backend;
+- Desenvolver uma aplicação web com separação clara entre frontend e backend;
 
-Implementar autenticação e controlo de acesso por perfis de utilizador;
+- Implementar autenticação e controlo de acesso por perfis de utilizador;
 
-Permitir a gestão completa (CRUD) de propostas de projeto por parte dos docentes;
+- Permitir a gestão completa (CRUD) de propostas de projeto por parte dos docentes;
 
-Disponibilizar uma área pública para consulta das propostas;
+- Disponibilizar uma área pública para consulta das propostas;
 
-Aplicar boas práticas de desenvolvimento web, tanto ao nível da arquitetura como da experiência do utilizador (UX).
+- Aplicar boas práticas de desenvolvimento web, tanto ao nível da arquitetura como da experiência do utilizador (UX).
 
 #   Perfis de Utilizador
 
@@ -24,11 +24,11 @@ Aplicar boas práticas de desenvolvimento web, tanto ao nível da arquitetura co
 
 ##  Administrador
 
-Acesso à área de administração;
+- Acesso à área de administração;
 
-Gestão de docentes, alunos e palavras-chave;
+- Gestão de docentes, alunos e palavras-chave;
 
-Supervisão global do sistema.
+- Supervisão global do sistema.
 
 ##  Docente
 
