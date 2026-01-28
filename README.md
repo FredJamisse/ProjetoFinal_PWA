@@ -109,7 +109,8 @@ Para verificar se está tudo instalado:
               │
               └── README.md
 
-Passo 1 — Executar o Backend
+### Passo 1 — Executar o Backend
+
 1️⃣ Abrir o terminal na pasta backend
 
     cd backend
@@ -137,7 +138,7 @@ E deverás ver no terminal algo como:
 
     Servidor a correr na porta 3000
 
-Passo 2 — Executar o Frontend
+### Passo 2 — Executar o Frontend
 
 1️⃣ Abrir outro terminal na pasta frontend
     
