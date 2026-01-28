@@ -75,49 +75,19 @@ router.get("/", (req, res) => {
 });
 
 router.put("/:id", (req, res) => {
-  const propostaId = req.params.id;
-  const { titulo, descricao, coorientadores, alunos, palavrasChave } = req.body;
+  const { titulo, descricao } = req.body;
 
-  db.serialize(() => {
-    // 1️⃣ atualizar dados base
-    db.run(
-      `UPDATE propostas
-       SET titulo = ?, descricao = ?
-       WHERE id = ?`,
-      [titulo, descricao, propostaId]
-    );
-
-    // 2️⃣ limpar relações antigas
-    db.run("DELETE FROM proposta_coorientadores WHERE proposta_id = ?", [propostaId]);
-    db.run("DELETE FROM proposta_alunos WHERE proposta_id = ?", [propostaId]);
-    db.run("DELETE FROM proposta_palavras_chave WHERE proposta_id = ?", [propostaId]);
-
-    // 3️⃣ inserir novas relações
-    coorientadores?.forEach(id => {
-      db.run(
-        "INSERT INTO proposta_coorientadores (proposta_id, user_id) VALUES (?, ?)",
-        [propostaId, id]
-      );
-    });
-
-    alunos?.forEach(id => {
-      db.run(
-        "INSERT INTO proposta_alunos (proposta_id, aluno_id) VALUES (?, ?)",
-        [propostaId, id]
-      );
-    });
-
-    palavrasChave?.forEach(id => {
-      db.run(
-        "INSERT INTO proposta_palavras_chave (proposta_id, palavra_id) VALUES (?, ?)",
-        [propostaId, id]
-      );
-    });
-
-    res.json({ updated: true });
-  });
+  db.run(
+    `UPDATE propostas
+     SET titulo = ?, descricao = ?
+     WHERE id = ?`,
+    [titulo, descricao, req.params.id],
+    function (err) {
+      if (err) return res.status(500).json(err);
+      res.json({ updated: this.changes });
+    }
+  );
 });
-
 
 // Apagar proposta (docente)
 router.delete("/:id", (req, res) => {
@@ -147,47 +117,74 @@ router.get("/:id/detalhes", (req, res) => {
   const propostaId = req.params.id;
 
   db.get(
-    `SELECT p.id, p.titulo, p.descricao, u.nome AS orientador
-     FROM propostas p
-     JOIN users u ON p.orientador_id = u.id
-     WHERE p.id = ?`,
+  `
+    SELECT
+      p.id,
+      p.titulo,
+      p.descricao,
+      p.created_at,
+      u.id AS orientador_id,
+      u.nome AS orientador_nome,
+      u.email AS orientador_email
+    FROM propostas p
+    JOIN users u ON u.id = p.orientador_id
+    WHERE p.id = ?
+    `,
     [propostaId],
     (err, proposta) => {
-      if (err) return res.status(500).json(err);
-      if (!proposta) return res.status(404).json({ error: "Proposta não encontrada" });
+      if (err) {
+        console.error(err.message);
+        return res.status(500).json({ error: err.message });
+      }
 
-      // buscar coorientadores
+      if (!proposta) {
+        return res.status(404).json({ error: "Proposta não encontrada" });
+      }
+
+      // Agora buscar relações (coorientadores, alunos, palavras-chave)
       db.all(
-        `SELECT u.id, u.nome, u.email
-         FROM proposta_coorientadores pc
-         JOIN users u ON u.id = pc.user_id
-         WHERE pc.proposta_id = ?`,
+        `
+        SELECT u.id, u.nome, u.email
+        FROM proposta_coorientadores pc
+        JOIN users u ON u.id = pc.user_id
+        WHERE pc.proposta_id = ?
+        `,
         [propostaId],
-        (err2, coorientadores) => {
-          if (err2) return res.status(500).json(err2);
+        (err, coorientadores) => {
+          if (err) return res.status(500).json({ error: err.message });
 
-          // buscar alunos
           db.all(
-            `SELECT a.id, a.nome, a.email
-             FROM proposta_alunos pa
-             JOIN alunos a ON a.id = pa.aluno_id
-             WHERE pa.proposta_id = ?`,
+            `
+            SELECT a.id, a.nome, a.email
+            FROM proposta_alunos pa
+            JOIN alunos a ON a.id = pa.aluno_id
+            WHERE pa.proposta_id = ?
+            `,
             [propostaId],
-            (err3, alunos) => {
-              if (err3) return res.status(500).json(err3);
+            (err, alunos) => {
+              if (err) return res.status(500).json({ error: err.message });
 
-              // buscar palavras-chave
               db.all(
-                `SELECT pk.id, pk.termo
-                 FROM proposta_palavras_chave ppk
-                 JOIN palavras_chave pk ON pk.id = ppk.palavra_id
-                 WHERE ppk.proposta_id = ?`,
+                `
+                SELECT p.id, p.termo
+                FROM proposta_palavras_chave pp
+                JOIN palavras_chave p ON p.id = pp.palavra_id
+                WHERE pp.proposta_id = ?
+                `,
                 [propostaId],
-                (err4, palavrasChave) => {
-                  if (err4) return res.status(500).json(err4);
+                (err, palavrasChave) => {
+                  if (err) return res.status(500).json({ error: err.message });
 
                   res.json({
-                    ...proposta,
+                    id: proposta.id,
+                    titulo: proposta.titulo,
+                    descricao: proposta.descricao,
+                    created_at: proposta.created_at,
+                    orientador: {
+                      id: proposta.orientador_id,
+                      nome: proposta.orientador_nome,
+                      email: proposta.orientador_email
+                    },
                     coorientadores,
                     alunos,
                     palavrasChave

@@ -6,11 +6,12 @@ import api from "../services/api";
 const route = useRoute();
 const router = useRouter();
 
-const docente = ref(null);
+const docente = ref({});
 const propostas = ref([]);
 
 const showDetalhes = ref(false);
 const detalhes = ref(null);
+
 
 async function carregar() {
   docente.value = (await api.get(`/public/docentes/${route.params.id}`)).data;
@@ -31,22 +32,34 @@ onMounted(carregar);
 </script>
 
 <template>
-  <!-- Navegação -->
-  <button class="btn btn-link mb-3" @click="voltar">
-    ← Voltar à lista de docentes
-  </button>
+  <!-- CABEÇALHO DO DOCENTE -->
+<div class="mb-4">
 
-  <!-- Info do Docente -->
-  <!-- Cabeçalho do Docente -->
-<div class="card mb-4 shadow-sm" v-if="docente">
-  <div class="card-body">
-    <h5 class="mb-3">Nome do docente:</h5>
-    <div class="text-muted">
-      <strong>{{ docente.nome }}</strong> 
-    </div>
-    
-  </div>
+  <!-- Voltar -->
+  <router-link
+    to="/"
+    class="btn btn-link p-0 mb-2"
+  >
+    ← Voltar às Propostas
+  </router-link>
+
+  <!-- Nome do docente -->
+  <h3 class="mb-1">
+    {{ docente.nome }}
+  </h3>
+
+  <!-- Subtítulo -->
+  <p class="text-muted mb-2">
+    Propostas de Projeto Final
+  </p>
+
+  <!-- Contador -->
+  <span class="badge bg-secondary">
+    {{ propostas.length }} proposta<span v-if="propostas.length !== 1">s</span>
+  </span>
 </div>
+
+<hr />
 
 
   <!-- Propostas -->

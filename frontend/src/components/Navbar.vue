@@ -24,23 +24,27 @@ function logout() {
 
       <!--  Navegação -->
       <div class="navbar-nav me-auto ms-3 align-items-center">
-        <router-link
-          to="/"
-          class="nav-link"
-          exact-active-class="active"
-        >
-          Propostas
-        </router-link>
 
-        <router-link
-          v-if="auth.user?.role === 'DOCENTE'"
-          to="/propostas"
-          class="nav-link"
-          exact-active-class="active"
-        >
-          Gerir Minhas Propostas
-        </router-link>
-      </div>
+  <!-- Docente -->
+  <router-link
+    v-if="auth.user?.role === 'DOCENTE'"
+    to="/propostas"
+    class="nav-link"
+  >
+    Gerir Minhas Propostas
+  </router-link>
+
+  <!-- Admin -->
+  <router-link
+    v-if="auth.user?.role === 'ADMIN'"
+    to="/admin"
+    class="nav-link"
+  >
+    Administração
+  </router-link>
+</div>
+
+      
 
       <!--  Área do utilizador -->
       <div class="d-flex align-items-center gap-3">
