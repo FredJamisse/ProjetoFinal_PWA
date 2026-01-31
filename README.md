@@ -92,6 +92,9 @@ Para verificar se está tudo instalado:
     node -v
     npm -v
 
+### Repositorio Git
+https://github.com/FredJamisse/ProjetoFinal_PWA.git
+
 📁 Estrutura resumida do projeto 
         
               ProjetoFinal/
