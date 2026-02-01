@@ -32,6 +32,7 @@ onMounted(carregar);
 </script>
 
 <template>
+  <div>
   <!-- CABEÇALHO DO DOCENTE -->
 <div class="mb-4">
 
@@ -164,5 +165,6 @@ onMounted(carregar);
     </div>
 
     <div class="modal-backdrop fade show"></div>
+  </div>
   </div>
 </template>

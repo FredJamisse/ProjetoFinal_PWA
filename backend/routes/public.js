@@ -10,7 +10,7 @@ router.get("/docentes", (req, res) => {
       u.id,
       u.nome,
       u.email,
-      COUNT(p.id) AS totalPropostas,
+      COUNT(DISTINCT p.id) AS totalPropostas,
       GROUP_CONCAT(DISTINCT pk.termo) AS palavrasChave
     FROM users u
     JOIN propostas p ON p.orientador_id = u.id

@@ -75,19 +75,72 @@ router.get("/", (req, res) => {
 });
 
 router.put("/:id", (req, res) => {
-  const { titulo, descricao } = req.body;
+  const propostaId = req.params.id;
+  const {
+    titulo,
+    descricao,
+    coorientadores = [],
+    alunos = [],
+    palavrasChave = []
+  } = req.body;
 
   db.run(
-    `UPDATE propostas
-     SET titulo = ?, descricao = ?
-     WHERE id = ?`,
-    [titulo, descricao, req.params.id],
+    `
+    UPDATE propostas
+    SET titulo = ?, descricao = ?
+    WHERE id = ?
+    `,
+    [titulo, descricao, propostaId],
     function (err) {
       if (err) return res.status(500).json(err);
-      res.json({ updated: this.changes });
+
+      //  agora atualizar relações
+
+            db.run(
+        "DELETE FROM proposta_coorientadores WHERE proposta_id = ?",
+        [propostaId],
+        () => {
+
+                    coorientadores.forEach(id => {
+            db.run(
+              "INSERT INTO proposta_coorientadores (proposta_id, user_id) VALUES (?, ?)",
+              [propostaId, id]
+            );
+          });
+
+                    db.run(
+            "DELETE FROM proposta_palavras_chave WHERE proposta_id = ?",
+            [propostaId],
+            () => {
+              palavrasChave.forEach(id => {
+                db.run(
+                  "INSERT INTO proposta_palavras_chave (proposta_id, palavra_id) VALUES (?, ?)",
+                  [propostaId, id]
+                );
+              });
+              db.run(
+                "DELETE FROM proposta_alunos WHERE proposta_id = ?",
+                [propostaId],
+                () => {
+                  alunos.forEach(id => {
+                    db.run(
+                      "INSERT INTO proposta_alunos (proposta_id, aluno_id) VALUES (?, ?)",
+                      [propostaId, id]
+                    );
+                  });
+
+                  res.json({ success: true });
+                }
+              );
+            }
+          );
+        }
+      );
     }
   );
 });
+
+    
 
 // Apagar proposta (docente)
 router.delete("/:id", (req, res) => {

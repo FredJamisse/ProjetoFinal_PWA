@@ -112,14 +112,25 @@ async function guardar() {
   voltarLista();
 }
 
-function editar(p) {
+async function editar(p) {
   modoFormulario.value = true;
   modoEdicao.value = true;
   propostaId.value = p.id;
 
-  titulo.value = p.titulo;
-  descricao.value = p.descricao;
+  // Buscar detalhes completos da proposta
+  const res = await api.get(`/propostas/${p.id}/detalhes`);
+  const d = res.data;
+
+  // Campos simples
+  titulo.value = d.titulo;
+  descricao.value = d.descricao;
+
+  // Relações (IMPORTANTE)
+  coorientadores.value = d.coorientadores.map(c => c.id);
+  alunos.value = d.alunos.map(a => a.id);
+  palavrasChave.value = d.palavrasChave.map(p => p.id);
 }
+
 
 async function verDetalhes(p) {
   const res = await api.get(`/propostas/${p.id}/detalhes`);
@@ -165,6 +176,7 @@ onMounted(carregarDados);
 </script>
 
 <template>
+  <div>
   <!-- CABEÇALHO -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Gerir Minhas Propostas</h3>
@@ -179,51 +191,80 @@ onMounted(carregarDados);
   </div>
 
   <!-- LISTA -->
-  <div v-if="!modoFormulario">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Título</th>
-          <th>Data</th>
-          <th class="text-end">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="p in propostas" :key="p.id">
-          <td>{{ p.titulo }}</td>
-          <td>{{ formatarData(p.created_at) }}</td>
-          <td class="text-end">
-            <div class="btn-group btn-group-sm">
-  <button
-    class="btn btn-outline-primary"
-    title="Ver detalhes"
-    @click="verDetalhes(p)"
-  >
-    <i class="bi bi-eye"></i>
-  </button>
+<div v-if="!modoFormulario">
 
-  <button
-    class="btn btn-outline-warning"
-    title="Editar proposta"
-    @click="editar(p)"
+  <!-- SEM PROPOSTAS -->
+  <div
+    v-if="propostas.length === 0"
+    class="alert alert-info text-center py-4"
   >
-    <i class="bi bi-pencil"></i>
-  </button>
+    <h5 class="mb-2">Ainda não adicionou nenhuma proposta</h5>
 
-  <button
-    class="btn btn-outline-danger"
-    title="Apagar proposta"
-    @click="confirmarApagar(p)"
-  >
-    <i class="bi bi-trash"></i>
-  </button>
+    <p class="mb-3">
+      Utilize o botão abaixo para criar a sua primeira proposta de projeto.
+    </p>
+
+    <button class="btn btn-success" @click="abrirCriacao">
+      + Adicionar Primeira Proposta
+    </button>
+  </div>
+
+  <!-- COM PROPOSTAS -->
+  <table v-else class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Data</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr v-for="p in propostas" :key="p.id">
+        <td>{{ p.titulo }}</td>
+
+        <td class="text-muted">
+          {{ formatarData(p.created_at) }}
+        </td>
+
+        <td class="text-end">
+          <div class="btn-group btn-group-sm">
+
+            <!-- VER DETALHES -->
+            <button
+              class="btn btn-outline-primary"
+              title="Ver detalhes"
+              @click="verDetalhes(p)"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+
+            <!-- EDITAR -->
+            <button
+              class="btn btn-outline-warning"
+              title="Editar proposta"
+              @click="editar(p)"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+
+            <!-- APAGAR -->
+            <button
+              class="btn btn-outline-danger"
+              title="Apagar proposta"
+              @click="confirmarApagar(p)"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
 </div>
 
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
 
   <!-- FORMULÁRIO -->
   <div v-else>
@@ -412,4 +453,5 @@ onMounted(carregarDados);
     :mensagem="modalMensagem"
     @close="showModal = false"
   />
+  </div>
 </template>

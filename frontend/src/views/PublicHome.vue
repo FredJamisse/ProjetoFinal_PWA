@@ -39,6 +39,7 @@ onMounted(carregar);
 </script>
 
 <template>
+  <div>
   <h3 class="mb-3">Propostas de Projeto Final</h3>
   <p class="text-muted">
     Consulte os docentes com propostas disponíveis e explore os temas sugeridos.
@@ -101,4 +102,5 @@ onMounted(carregar);
       </tr>
     </tbody>
   </table>
+</div>
 </template>
