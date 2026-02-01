@@ -1,4 +1,5 @@
 <template>
+  <div>
   <h3>Administração</h3>
 
   <div class="card mb-4">
@@ -35,6 +36,7 @@
     :mensagem="modalMensagem"
     @close="showModal = false"
   />
+  </div>
 </template>
 
 
